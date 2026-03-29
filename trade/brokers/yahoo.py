@@ -47,6 +47,35 @@ _PERIOD_MAP = {
 _AO_CACHE = Path.home() / ".trade" / "angelone_instruments.json"
 
 
+def _resolve_ticker(symbol: str) -> tuple[str, str]:
+    """
+    Given a bare Indian equity symbol (e.g. 'DMARAT'), return the Yahoo
+    Finance ticker string and exchange label by trying NSE then BSE.
+    If the symbol already has a suffix (.NS / .BO) it is used as-is.
+    Returns (ticker, exchange) e.g. ('DMARAT.NS', 'NSE').
+    """
+    import yfinance as yf
+
+    # Already has a suffix — pass through
+    if symbol.endswith(_NSE):
+        return symbol, "NSE"
+    if symbol.endswith(_BSE):
+        return symbol, "BSE"
+
+    sym = symbol.upper()
+    for suffix, exchange in ((_NSE, "NSE"), (_BSE, "BSE")):
+        ticker = f"{sym}{suffix}"
+        try:
+            ltp = yf.Ticker(ticker).fast_info.last_price
+            if ltp:
+                return ticker, exchange
+        except Exception:
+            pass
+
+    # Default to NSE even if lookup failed (caller will handle missing data)
+    return f"{sym}{_NSE}", "NSE"
+
+
 class YahooFinanceBroker(BaseBroker):
     """
     Public market data via Yahoo Finance.
@@ -62,19 +91,18 @@ class YahooFinanceBroker(BaseBroker):
     def get_quote(self, symbols: list[str]) -> list[Quote]:
         import yfinance as yf
 
-        tickers = yf.Tickers(" ".join(f"{s}{_NSE}" for s in symbols))
-        quotes  = []
-
+        quotes = []
         for symbol in symbols:
             try:
-                info  = tickers.tickers[f"{symbol}{_NSE}"].fast_info
+                ticker, _ = _resolve_ticker(symbol)
+                info  = yf.Ticker(ticker).fast_info
                 ltp   = float(info.last_price or 0)
                 prev  = float(info.previous_close or ltp)
                 chg   = ltp - prev
                 chgp  = (chg / prev * 100) if prev else 0
                 vol   = int(info.three_month_average_volume or 0)
                 quotes.append(Quote(
-                    symbol=symbol,
+                    symbol=symbol.upper(),
                     ltp=ltp,
                     change=chg,
                     change_pct=chgp,
@@ -110,7 +138,8 @@ class YahooFinanceBroker(BaseBroker):
 
         yf_interval = _INTERVAL_MAP.get(interval, "1d")
 
-        ticker = yf.Ticker(f"{symbol}{_NSE}")
+        yf_ticker, _ = _resolve_ticker(symbol)
+        ticker = yf.Ticker(yf_ticker)
         df     = ticker.history(period=yf_period, interval=yf_interval)
 
         candles = []
