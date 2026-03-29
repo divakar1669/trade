@@ -49,12 +49,16 @@ _AO_CACHE = Path.home() / ".trade" / "angelone_instruments.json"
 
 def _resolve_ticker(symbol: str) -> tuple[str, str]:
     """
-    Given a bare Indian equity symbol (e.g. 'DMARAT'), return the Yahoo
-    Finance ticker string and exchange label by trying NSE then BSE.
-    If the symbol already has a suffix (.NS / .BO) it is used as-is.
+    Given a bare Indian equity symbol (e.g. 'DMARAT') or index (e.g. '^NSEI'),
+    return the Yahoo Finance ticker string and exchange label.
+    Tries NSE first, then BSE. Symbols already with a suffix pass through.
     Returns (ticker, exchange) e.g. ('DMARAT.NS', 'NSE').
     """
     import yfinance as yf
+
+    # Index symbol — use as-is (^NSEI, ^NSEBANK, etc.)
+    if symbol.startswith("^"):
+        return symbol, "NSE"
 
     # Already has a suffix — pass through
     if symbol.endswith(_NSE):
@@ -201,8 +205,21 @@ class YahooFinanceBroker(BaseBroker):
             from yfinance import Search
             quotes = Search(query, max_results=20).quotes
             for r in quotes:
-                sym  = r.get("symbol", "")
-                name = r.get("longname") or r.get("shortname", "")
+                sym       = r.get("symbol", "")
+                name      = r.get("longname") or r.get("shortname", "")
+                qtype     = r.get("quoteType", "")
+
+                # Skip mutual funds — they pollute results with 0P... codes
+                if qtype == "MUTUALFUND":
+                    continue
+
+                # Indian index (e.g. ^NSEI, ^NSEBANK)
+                if qtype == "INDEX" and sym.startswith("^"):
+                    key = sym
+                    if key not in seen:
+                        seen.add(key)
+                        results.append(Instrument(symbol=sym, name=name, exchange="NSE", token=""))
+                    continue
 
                 if sym.endswith(_NSE):
                     clean, exchange = sym[:-len(_NSE)], "NSE"
