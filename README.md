@@ -36,7 +36,7 @@ Works without an AI key — all structured commands run instantly with no API ca
 ```bash
 # 1. Clone the repo
 git clone https://github.com/divakar1669/trade
-cd trade-cli
+cd trade
 
 # 2. Run setup once — installs everything, wires up the 'trade' command
 bash setup.sh
