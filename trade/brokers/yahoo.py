@@ -164,13 +164,15 @@ class YahooFinanceBroker(BaseBroker):
         return results[:20]
 
     def _search_yfinance(self, query: str) -> list[Instrument]:
+        import yfinance as yf
+        results, seen = [], set()
+
+        # 1. Try Yahoo Finance search API
         try:
             from yfinance import Search
             quotes = Search(query, max_results=20).quotes
-            results, seen = [], set()
             for r in quotes:
                 sym  = r.get("symbol", "")
-                exch = r.get("exchDisp", "")
                 name = r.get("longname") or r.get("shortname", "")
 
                 if sym.endswith(_NSE):
@@ -183,15 +185,29 @@ class YahooFinanceBroker(BaseBroker):
                 key = clean + exchange
                 if key not in seen:
                     seen.add(key)
-                    results.append(Instrument(
-                        symbol=clean,
-                        name=name,
-                        exchange=exchange,
-                        token="",
-                    ))
-            return results
+                    results.append(Instrument(symbol=clean, name=name, exchange=exchange, token=""))
         except Exception:
-            return []
+            pass
+
+        # 2. Direct ticker lookup fallback — handles exact/less-common symbols
+        if not results:
+            q = query.upper()
+            for suffix, exchange in ((_NSE, "NSE"), (_BSE, "BSE")):
+                try:
+                    t = yf.Ticker(f"{q}{suffix}")
+                    info = t.fast_info
+                    ltp  = getattr(info, "last_price", None)
+                    if ltp:
+                        name = (t.info or {}).get("longName") or q
+                        key  = q + exchange
+                        if key not in seen:
+                            seen.add(key)
+                            results.append(Instrument(symbol=q, name=name, exchange=exchange, token=""))
+                        break
+                except Exception:
+                    continue
+
+        return results
 
     # --------- trade operations — not supported in public mode -----------
 
