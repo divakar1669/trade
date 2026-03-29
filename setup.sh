@@ -10,12 +10,12 @@ D="\033[2m"
 RST="\033[0m"
 
 PROJ="$(cd "$(dirname "$0")" && pwd)"
-ENV_DIR="$HOME/.trade-cli"
+ENV_DIR="$HOME/.trade"
 ENV_FILE="$ENV_DIR/.env"
 BASHRC="$HOME/.bashrc"
 
 echo ""
-echo -e "${C}  trade-cli setup${RST}"
+echo -e "${C}  trade setup${RST}"
 echo -e "${D}  ──────────────────────────────────────${RST}"
 echo ""
 
@@ -36,23 +36,23 @@ cd "$PROJ"
 "$PY" -m pip install -e . -q
 echo -e "${G}  ✓ All packages installed${RST}"
 
-# ── 3. Create ~/.trade-cli/.env if missing ─────────────────────────────────
+# ── 3. Create ~/.trade/.env if missing ─────────────────────────────────
 echo -e "${D}  [3/4] Setting up config…${RST}"
 mkdir -p "$ENV_DIR/tokens"
 
 if [ ! -f "$ENV_FILE" ]; then
     cp "$PROJ/.env.example" "$ENV_FILE"
-    echo -e "${G}  ✓ Created ~/.trade-cli/.env${RST}"
+    echo -e "${G}  ✓ Created ~/.trade/.env${RST}"
     echo -e "${Y}  → Fill in your credentials: ${ENV_FILE}${RST}"
 else
-    echo -e "${G}  ✓ ~/.trade-cli/.env already exists${RST}"
+    echo -e "${G}  ✓ ~/.trade/.env already exists${RST}"
 fi
 
 # ── 4. Add trade function to ~/.bashrc ────────────────────────────────────
 echo -e "${D}  [4/4] Wiring up the 'trade' command…${RST}"
 
-# Remove any old trade-cli block
-sed -i '/# >>> trade-cli >>>/,/# <<< trade-cli <<</d' "$BASHRC" 2>/dev/null || true
+# Remove any old trade block
+sed -i '/# >>> trade >>>/,/# <<< trade <<</d' "$BASHRC" 2>/dev/null || true
 
 # Detect winpty (Git Bash on Windows needs it)
 if command -v winpty &>/dev/null; then
@@ -63,13 +63,13 @@ fi
 
 cat >> "$BASHRC" << EOF
 
-# >>> trade-cli >>>
+# >>> trade >>>
 function trade() {
     local PY="$PY"
     local PROJ="$PROJ"
     (cd "\$PROJ" && $LAUNCH "\$@")
 }
-# <<< trade-cli <<<
+# <<< trade <<<
 EOF
 
 echo -e "${G}  ✓ 'trade' command added to ~/.bashrc${RST}"

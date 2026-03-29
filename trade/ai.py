@@ -98,7 +98,7 @@ def parse(text: str, context: Optional[dict] = None) -> ParsedCommand:
             action="answer",
             answer=(
                 "No AI key configured — natural language is disabled.\n"
-                "  Add CLAUDE_API_KEY or OPENAI_API_KEY to ~/.trade-cli/.env\n"
+                "  Add CLAUDE_API_KEY or OPENAI_API_KEY to ~/.trade/.env\n"
                 "  Or use structured commands — type ? for the list."
             ),
         )

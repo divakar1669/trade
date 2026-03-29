@@ -1,4 +1,4 @@
-# trade-cli
+# trade
 
 A multi-user stock trading CLI for Angel One with AI-powered natural language support.
 Works without an AI key — all structured commands run instantly with no API calls.
@@ -54,12 +54,12 @@ That's it. `setup.sh` handles Python deps, config directory, and the bash functi
 
 ## Credentials Setup
 
-All secrets live in `~/.trade-cli/.env` — never inside the repo.
+All secrets live in `~/.trade/.env` — never inside the repo.
 
 ```bash
 # Location
-~/.trade-cli/.env          # Linux / macOS / Git Bash
-C:\Users\<you>\.trade-cli\.env   # Windows
+~/.trade/.env          # Linux / macOS / Git Bash
+C:\Users\<you>\.trade\.env   # Windows
 ```
 
 ```env
@@ -418,7 +418,7 @@ The data source is shown on every result: `(live)` or `(yahoo · ~15min delay)`.
 
 ## Adding a New User
 
-Open `~/.trade-cli/.env` and add 5 lines:
+Open `~/.trade/.env` and add 5 lines:
 
 ```env
 SPOUSE_BROKER=angelone
@@ -514,7 +514,7 @@ User types:  "buy spandana sphoorty 15 from dad"
                                        │
                                   config.py
                              loads dad's creds
-                           from ~/.trade-cli/.env
+                           from ~/.trade/.env
                                        │
                                broker login
                              (TOTP auto-generated)
@@ -551,13 +551,13 @@ All brokers implement `BaseBroker` from `trade/brokers/base.py`. The CLI, AI, co
 | `setup.sh` | One-time setup — installs deps, creates config dir, wires `trade` command |
 | `trade/__main__.py` | Entry point — runs splash + REPL or passes args to Typer |
 | `trade/cli.py` | All commands, smart router, REPL, splash, help |
-| `trade/config.py` | Loads `~/.trade-cli/.env`, discovers users, returns broker instances |
+| `trade/config.py` | Loads `~/.trade/.env`, discovers users, returns broker instances |
 | `trade/ai.py` | Natural language → `ParsedCommand` via Claude / OpenAI tool calling |
 | `trade/display.py` | All terminal output — Rich tables, plotext ASCII charts |
 | `trade/brokers/base.py` | `BaseBroker` interface + shared dataclasses |
 | `trade/brokers/angelone.py` | Angel One implementation via SmartAPI |
 | `trade/brokers/yahoo.py` | Yahoo Finance — public data, no login required |
 | `trade/brokers/__init__.py` | `BROKER_REGISTRY` — maps names to broker classes |
-| `~/.trade-cli/.env` | All secrets — never committed |
-| `~/.trade-cli/tokens/` | Session token cache per user — auto-managed |
+| `~/.trade/.env` | All secrets — never committed |
+| `~/.trade/tokens/` | Session token cache per user — auto-managed |
 | `pyproject.toml` | Package definition and dependencies |

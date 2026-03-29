@@ -1,6 +1,6 @@
 """
 Config loader.
-Reads ~/.trade-cli/.env, auto-discovers users by scanning for *_CLIENT_ID keys.
+Reads ~/.trade/.env, auto-discovers users by scanning for *_CLIENT_ID keys.
 """
 import os
 from pathlib import Path
@@ -10,7 +10,7 @@ from dotenv import load_dotenv
 
 from .brokers import BROKER_REGISTRY, BaseBroker
 
-CONFIG_DIR  = Path.home() / ".trade-cli"
+CONFIG_DIR  = Path.home() / ".trade"
 ENV_FILE    = CONFIG_DIR / ".env"
 TOKENS_DIR  = CONFIG_DIR / "tokens"
 

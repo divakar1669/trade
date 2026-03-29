@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "trade-cli"
+name = "trade"
 version = "0.1.0"
 description = "Multi-user stock trading CLI — Angel One + AI natural language"
 requires-python = ">=3.10"

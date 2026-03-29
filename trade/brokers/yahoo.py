@@ -44,7 +44,7 @@ _PERIOD_MAP = {
 }
 
 # Cached instrument list from Angel One (if available) — used for search
-_AO_CACHE = Path.home() / ".trade-cli" / "angelone_instruments.json"
+_AO_CACHE = Path.home() / ".trade" / "angelone_instruments.json"
 
 
 class YahooFinanceBroker(BaseBroker):

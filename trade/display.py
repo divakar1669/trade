@@ -42,20 +42,17 @@ def _pnl_text(pnl: float, pct: Optional[float] = None) -> Text:
 
 # ------------------------------------------------------------------ quotes
 
-def show_quotes(quotes: list[Quote], source: str = "live"):
-    source_tag = f"[dim]({source})[/dim]"
-
+def show_quotes(quotes: list[Quote], **_):
     if len(quotes) == 1:
         q = quotes[0]
         console.print(
             f"[bold]{q.symbol}[/bold]   [cyan]{_fmt_price(q.ltp)}[/cyan]   ",
             _fmt_change(q.change, q.change_pct),
-            f"   Vol: {q.volume:,}   {source_tag}",
+            f"   Vol: {q.volume:,}",
         )
         return
 
-    table = Table(box=box.SIMPLE_HEAVY, show_header=True, header_style="bold cyan",
-                  caption=source_tag, caption_justify="right")
+    table = Table(box=box.SIMPLE_HEAVY, show_header=True, header_style="bold cyan")
     table.add_column("Symbol",  style="bold")
     table.add_column("LTP",     justify="right")
     table.add_column("Change",  justify="right")
@@ -90,7 +87,7 @@ def show_instruments(results: list[Instrument], query: str):
 
 # ------------------------------------------------------------------ history
 
-def show_history(candles: list[Candle], symbol: str, period: str, interval: str, source: str = "live"):
+def show_history(candles: list[Candle], symbol: str, period: str, interval: str, **_):
     if not candles:
         console.print("[yellow]No historical data found.[/yellow]")
         return
@@ -108,7 +105,7 @@ def show_history(candles: list[Candle], symbol: str, period: str, interval: str,
     plt.clear_figure()
     plt.theme("dark")
     plt.plot(closes, color="cyan")
-    plt.title(f"{symbol} — {period.upper()} ({interval})  [{source}]")
+    plt.title(f"{symbol} — {period.upper()} ({interval})")
     plt.xlabel("Date")
     plt.ylabel("Price (₹)")
 

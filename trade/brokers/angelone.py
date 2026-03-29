@@ -17,7 +17,7 @@ from .base import (
 )
 
 INSTRUMENT_URL = "https://margincalculator.angelbroking.com/OpenAPI_File/files/OpenAPIScripMaster.json"
-INSTRUMENT_CACHE = Path.home() / ".trade-cli" / "angelone_instruments.json"
+INSTRUMENT_CACHE = Path.home() / ".trade" / "angelone_instruments.json"
 CACHE_TTL_HOURS = 12
 
 # Map user-facing interval strings → SmartAPI interval strings
