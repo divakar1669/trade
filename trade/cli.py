@@ -316,6 +316,13 @@ def _get_broker(user: str, public: bool = False):
 
 def _run_command(cmd: ParsedCommand, public: bool = False):
     """Execute a ParsedCommand — shared between structured CLI and AI router."""
+    try:
+        _run_command_inner(cmd, public)
+    except ValueError as e:
+        console.print(f"[red]{e}[/red]")
+
+
+def _run_command_inner(cmd: ParsedCommand, public: bool = False):
     user = _resolve_user(cmd.user)
 
     if cmd.action == "answer":
